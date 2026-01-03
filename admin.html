@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        body{padding:20px; font-family:sans-serif;}
+        .site-item { background: #fff; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; }
+        button { background: #ef4444; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="login">
+        <h3>Admin Login</h3>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="login()" style="background:blue;">Login</button>
+    </div>
+
+    <div id="dash" style="display:none;">
+        <h3>Site Manager</h3>
+        <div id="list">Loading...</div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-fR5yCte_c2pHpd0WD5IVjWmUvfUl5wA",
+            authDomain: "html-code-hosting.firebaseapp.com",
+            projectId: "html-code-hosting",
+            storageBucket: "html-code-hosting.firebasestorage.app",
+            messagingSenderId: "22191194064",
+            appId: "1:22191194064:web:47fcd0b42f0f770ede43d5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                document.getElementById('login').style.display='none';
+                document.getElementById('dash').style.display='block';
+                loadSites();
+            }
+        });
+
+        function login(){
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            auth.signInWithEmailAndPassword(e,p).catch(err=>alert(err.message));
+        }
+
+        function loadSites(){
+            db.collection('sites').orderBy('createdAt', 'desc').limit(20).onSnapshot(snap => {
+                const list = document.getElementById('list');
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    list.innerHTML += `
+                        <div class="site-item">
+                            <b>ID:</b> ${doc.id} <br>
+                            <b>Status:</b> ${d.status} <br>
+                            <a href="view.html?id=${doc.id}" target="_blank">View</a> 
+                            ${d.status==='active' ? `<button onclick="del('${doc.id}')">Delete</button>` : ''}
+                        </div>`;
+                });
+            });
+        }
+
+        function del(id){
+            if(confirm('Delete?')) db.collection('sites').doc(id).update({status:'deleted'});
+        }
+    </script>
+</body>
+</html>
