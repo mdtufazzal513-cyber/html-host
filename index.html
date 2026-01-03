@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Host</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f9ff; text-align: center; }
+        .box { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; padding: 12px 20px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer; font-size: 16px; width: 100%; }
+        #result { display: none; margin-top: 20px; padding: 10px; background: #dcfce7; border-radius: 5px; color: #166534; }
+        a { font-weight: bold; color: #15803d; word-break: break-all; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="box">
+        <h2>🚀 HTML পাবলিশার</h2>
+        <textarea id="code" placeholder="আপনার HTML কোড এখানে পেস্ট করুন..."></textarea>
+        <button onclick="publish()" id="btn">পাবলিশ করুন</button>
+        
+        <div id="result">
+            <p>✅ সাকসেস! আপনার লিংক:</p>
+            <a id="link" href="#" target="_blank">...</a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-fR5yCte_c2pHpd0WD5IVjWmUvfUl5wA",
+            authDomain: "html-code-hosting.firebaseapp.com",
+            projectId: "html-code-hosting",
+            storageBucket: "html-code-hosting.firebasestorage.app",
+            messagingSenderId: "22191194064",
+            appId: "1:22191194064:web:47fcd0b42f0f770ede43d5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function publish() {
+            const html = document.getElementById('code').value;
+            if (!html) return alert("কোড খালি রাখা যাবে না!");
+            
+            document.getElementById('btn').innerText = "অপেক্ষা করুন...";
+            
+            db.collection('sites').add({
+                html: html,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'active'
+            }).then((doc) => {
+                const url = window.location.origin + window.location.pathname.replace('index.html', '') + 'view.html?id=' + doc.id;
+                document.getElementById('link').href = url;
+                document.getElementById('link').innerText = url;
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('btn').innerText = "পাবলিশ করুন";
+            }).catch((err) => {
+                alert("এরর: " + err.message);
+                document.getElementById('btn').innerText = "পাবলিশ করুন";
+            });
+        }
+    </script>
+</body>
+</html>
