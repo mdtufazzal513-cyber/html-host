@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading Site...</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-fR5yCte_c2pHpd0WD5IVjWmUvfUl5wA",
+            authDomain: "html-code-hosting.firebaseapp.com",
+            projectId: "html-code-hosting",
+            storageBucket: "html-code-hosting.firebasestorage.app",
+            messagingSenderId: "22191194064",
+            appId: "1:22191194064:web:47fcd0b42f0f770ede43d5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+
+        if(id) {
+            db.collection('sites').doc(id).get().then(doc => {
+                if(doc.exists && doc.data().status === 'active') {
+                    document.open();
+                    document.write(doc.data().html);
+                    document.close();
+                } else {
+                    document.body.innerHTML = "<h1 style='text-align:center;font-family:sans-serif;'>❌ 404 - সাইট পাওয়া যায়নি বা ডিলিট করা হয়েছে।</h1>";
+                }
+            }).catch(e => document.body.innerHTML = "Error loading site");
+        } else {
+            document.body.innerHTML = "Invalid URL";
+        }
+    </script>
+</body>
+</html>
